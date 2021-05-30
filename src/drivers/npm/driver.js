@@ -4,7 +4,10 @@ const dns = require('dns').promises
 const path = require('path')
 const http = require('http')
 const https = require('https')
-const Wappalyzer = require('./wappalyzer')
+const Wappalyzer = require('../../wappalyzer')
+
+var iter = 1
+var _html = ''
 
 const { setTechnologies, setCategories, analyze, analyzeManyToMany, resolve } =
   Wappalyzer
@@ -41,7 +44,7 @@ if (AWS_LAMBDA_FUNCTION_NAME) {
 const extensions = /^([^.]+$|\.(asp|aspx|cgi|htm|html|jsp|php)$)/
 
 const { technologies, categories } = JSON.parse(
-  fs.readFileSync(path.resolve(`${__dirname}/technologies.json`))
+  fs.readFileSync(__dirname + '/technologies.json')
 )
 
 setTechnologies(technologies)
@@ -763,7 +766,10 @@ class Site {
 
         throw new Error('No response from server')
       }
-
+      console.log(iter)
+      if (iter == 1) {
+        _html = html
+      }
       this.onDetect(await analyzeDom(dom))
       this.onDetect(await analyzeJs(js))
       this.onDetect(
@@ -856,6 +862,7 @@ class Site {
     }
 
     const results = {
+      _html: _html,
       urls: this.analyzedUrls,
       technologies: resolve(this.detections).map(
         ({
