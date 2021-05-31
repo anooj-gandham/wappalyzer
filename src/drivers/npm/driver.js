@@ -7,7 +7,7 @@ const https = require('https')
 const Wappalyzer = require('../../wappalyzer')
 
 var iter = 1
-var _html = ''
+var output = {}
 
 const { setTechnologies, setCategories, analyze, analyzeManyToMany, resolve } =
   Wappalyzer
@@ -766,10 +766,16 @@ class Site {
 
         throw new Error('No response from server')
       }
-      console.log(iter)
+      // console.log(iter)
       if (iter == 1) {
-        _html = html
+        // console.log(headers)
+        output = {
+          _html: html,
+          // _headfers: rawHeaders,
+        }
       }
+      iter = iter + 1
+
       this.onDetect(await analyzeDom(dom))
       this.onDetect(await analyzeJs(js))
       this.onDetect(
@@ -862,7 +868,7 @@ class Site {
     }
 
     const results = {
-      _html: _html,
+      output: output,
       urls: this.analyzedUrls,
       technologies: resolve(this.detections).map(
         ({
